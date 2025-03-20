@@ -39,6 +39,13 @@ AChasingTwilightCharacter::AChasingTwilightCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	TP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TP_Gun"));
+	TP_Gun->SetOwnerNoSee(true);
+	TP_Gun->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+
+	//Not seeing itself
+	GetMesh()->SetOwnerNoSee(true);
+
 }
 
 void AChasingTwilightCharacter::BeginPlay()
