@@ -16,4 +16,8 @@ class CHASINGTWILIGHT_API AChasingTwilightPlayerState : public APlayerState
     UPROPERTY(Replicated)
     float Health;
 
+protected:
+    virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent,
+        AController* EventInstigator, AActor* DamageCauser) override;
+
 };

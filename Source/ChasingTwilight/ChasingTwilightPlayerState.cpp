@@ -17,3 +17,15 @@ void AChasingTwilightPlayerState::GetLifetimeReplicatedProps
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AChasingTwilightPlayerState, Health);
 }
+
+float AChasingTwilightPlayerState::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	AChasingTwilightPlayerState* CTPlayerState = Cast<AChasingTwilightPlayerState>(this);
+	if (GetLocalRole() == ROLE_Authority && DamageCauser != this &&
+		CTPlayerState && CTPlayerState->Health > 0.f)
+	{
+		CTPlayerState->Health -= Damage;
+	}
+	return Damage;
+}

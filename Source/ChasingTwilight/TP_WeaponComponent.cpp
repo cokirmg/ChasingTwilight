@@ -9,6 +9,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/DamageType.h"
+#include "Engine/DamageEvents.h"
 
 // Sets default values for this component's properties
 UTP_WeaponComponent::UTP_WeaponComponent()
@@ -103,6 +105,21 @@ void UTP_WeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void UTP_WeaponComponent::Fire(const FVector pos, const FVector dir)
 {
 	DrawDebugLine(GetWorld(), pos, dir, FColor::Red, true, 100, 0, 5.0f);
+
+	FCollisionObjectQueryParams ObjQuery;
+	// Use defined channel. Look in "DefaultEngine.ini"
+	ObjQuery.AddObjectTypesToQuery(ECC_GameTraceChannel1);
+	FCollisionQueryParams ColQuery;
+	ColQuery.AddIgnoredActor(GetOwner());
+	FHitResult HitRes;
+	GetWorld()->LineTraceSingleByObjectType(HitRes, pos, dir, ObjQuery, ColQuery);
+	if (HitRes.bBlockingHit)
+	{
+		AChasingTwilightCharacter* OtherChar = Cast<AChasingTwilightCharacter>(HitRes.GetActor());
+		FDamageEvent thisEvent(UDamageType::StaticClass());
+		OtherChar->TakeDamage(10.0f, thisEvent, OtherChar->GetController(), GetOwner());
+	}
+
 }
 
 
