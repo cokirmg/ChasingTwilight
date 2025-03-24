@@ -3,6 +3,7 @@
 #include "ChasingTwilightGameMode.h"
 #include "ChasingTwilightCharacter.h"
 #include "UObject/ConstructorHelpers.h"
+#include "ChasingTwilightPlayerState.h"
 
 AChasingTwilightGameMode::AChasingTwilightGameMode()
 	: Super()
@@ -10,5 +11,6 @@ AChasingTwilightGameMode::AChasingTwilightGameMode()
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/FirstPerson/Blueprints/BP_FirstPersonCharacter"));
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
+	PlayerStateClass = AChasingTwilightPlayerState::StaticClass();
 
 }
