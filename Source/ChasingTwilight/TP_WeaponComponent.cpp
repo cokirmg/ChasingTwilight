@@ -40,6 +40,14 @@ void UTP_WeaponComponent::Fire()
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
 	}
+
+	FVector mousePos;
+	FVector mouseDir;
+	APlayerController* pController = Cast<APlayerController>(Character->GetController());
+	FVector2D ScreenPos = GEngine->GameViewport->Viewport->GetSizeXY();
+	pController->DeprojectScreenPositionToWorld(ScreenPos.X / 2.0f, ScreenPos.Y / 2.0f,	mousePos, mouseDir);
+	mouseDir *= 10000000.0f;
+	Fire(mousePos, mouseDir);
 }
 
 void UTP_WeaponComponent::AttachWeapon(AChasingTwilightCharacter* TargetCharacter)
@@ -90,4 +98,50 @@ void UTP_WeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 			Subsystem->RemoveMappingContext(FireMappingContext);
 		}
 	}
+}
+
+void UTP_WeaponComponent::Fire(const FVector pos, const FVector dir)
+{
+	DrawDebugLine(GetWorld(), pos, dir, FColor::Red, true, 100, 0, 5.0f);
+}
+
+
+
+bool UTP_WeaponComponent::ServerFire_Validate(const FVector pos, const FVector dir)
+{
+	if (pos != FVector(ForceInit) && dir != FVector(ForceInit))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void UTP_WeaponComponent::ServerFire_Implementation(const FVector pos, const FVector dir)
+{
+	Fire(pos, dir);
+	MultiCastShootEffects();
+}
+
+void UTP_WeaponComponent::MultiCastShootEffects_Implementation()
+{
+	// try and play a firing animation if specified
+	if (FireAnimation != NULL)
+	{
+		// Get the animation object for the arms mesh
+		AChasingTwilightCharacter* character = Cast<AChasingTwilightCharacter>(GetOwner());
+		UAnimInstance* AnimInstance = character->GetMesh()->GetAnimInstance();
+		if (AnimInstance != NULL)
+		{
+			AnimInstance->Montage_Play(FireAnimation, 1.f);
+		}
+	}
+	// try and play the sound if specified
+	if (FireSound != NULL)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetOwner()->GetActorLocation());
+	}
+	// TODO: Try to play particles for the shot and for the bullet
 }
