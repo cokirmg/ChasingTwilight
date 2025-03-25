@@ -38,6 +38,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void AttachWeapon(AChasingTwilightCharacter* TargetCharacter);
 
+
+
 	/** Make the weapon Fire a Projectile */
 	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void Fire();
@@ -49,9 +51,7 @@ protected:
 
 	void Fire(const FVector pos, const FVector dir);
 
-	// Multicast so all clients run shoot effects
-	UFUNCTION(NetMultiCast, unreliable)
-	void MultiCastShootEffects();
+
 
 
 private:
@@ -59,6 +59,9 @@ private:
 	// Peform fire action on the server
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerFire(const FVector pos, const FVector dir);
+	// Multicast so all clients run shoot effects
+	UFUNCTION(NetMultiCast, unreliable)
+	void MultiCastShootEffects();
 	/** The Character holding this weapon*/
 	AChasingTwilightCharacter* Character;
 };

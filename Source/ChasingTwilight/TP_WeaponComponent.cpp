@@ -49,7 +49,7 @@ void UTP_WeaponComponent::Fire()
 	FVector2D ScreenPos = GEngine->GameViewport->Viewport->GetSizeXY();
 	pController->DeprojectScreenPositionToWorld(ScreenPos.X / 2.0f, ScreenPos.Y / 2.0f,	mousePos, mouseDir);
 	mouseDir *= 10000000.0f;
-	Fire(mousePos, mouseDir);
+	ServerFire(mousePos, mouseDir);
 }
 
 void UTP_WeaponComponent::AttachWeapon(AChasingTwilightCharacter* TargetCharacter)
@@ -110,14 +110,16 @@ void UTP_WeaponComponent::Fire(const FVector pos, const FVector dir)
 	// Use defined channel. Look in "DefaultEngine.ini"
 	ObjQuery.AddObjectTypesToQuery(ECC_GameTraceChannel1);
 	FCollisionQueryParams ColQuery;
-	ColQuery.AddIgnoredActor(GetOwner());
+	ColQuery.AddIgnoredActor(Character);
+
 	FHitResult HitRes;
 	GetWorld()->LineTraceSingleByObjectType(HitRes, pos, dir, ObjQuery, ColQuery);
 	if (HitRes.bBlockingHit)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ACTOR %s"), *HitRes.GetActor()->GetName());
 		AChasingTwilightCharacter* OtherChar = Cast<AChasingTwilightCharacter>(HitRes.GetActor());
 		FDamageEvent thisEvent(UDamageType::StaticClass());
-		OtherChar->TakeDamage(10.0f, thisEvent, OtherChar->GetController(), GetOwner());
+		OtherChar->TakeDamage(10.0f, thisEvent, Character->GetController(), GetOwner());
 	}
 
 }
@@ -148,8 +150,8 @@ void UTP_WeaponComponent::MultiCastShootEffects_Implementation()
 	if (FireAnimation != NULL)
 	{
 		// Get the animation object for the arms mesh
-		AChasingTwilightCharacter* character = Cast<AChasingTwilightCharacter>(GetOwner());
-		UAnimInstance* AnimInstance = character->GetMesh()->GetAnimInstance();
+		//AChasingTwilightCharacter* character = Cast<AChasingTwilightCharacter>(Character);
+		UAnimInstance* AnimInstance = Character->GetMesh3P()->GetAnimInstance();
 		if (AnimInstance != NULL)
 		{
 			AnimInstance->Montage_Play(FireAnimation, 1.f);

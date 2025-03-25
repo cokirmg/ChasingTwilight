@@ -10,6 +10,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
+#include "ChasingTwilightPlayerState.h"
+
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -122,4 +124,13 @@ void AChasingTwilightCharacter::SetHasRifle(bool bNewHasRifle)
 bool AChasingTwilightCharacter::GetHasRifle()
 {
 	return bHasRifle;
+}
+
+float AChasingTwilightCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	AChasingTwilightPlayerState* CTPlayerState = GetPlayerState<AChasingTwilightPlayerState>();
+	CTPlayerState->Health -= Damage;
+
+	return Damage;
 }
