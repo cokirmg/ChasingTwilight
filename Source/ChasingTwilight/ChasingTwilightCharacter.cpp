@@ -22,11 +22,11 @@ AChasingTwilightCharacter::AChasingTwilightCharacter()
 {
 	// Character doesnt have a rifle at start
 	bHasRifle = false;
-	
+    
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-		
-	// Create a CameraComponent	
+        
+	// Create a CameraComponent    
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
@@ -38,16 +38,20 @@ AChasingTwilightCharacter::AChasingTwilightCharacter()
 	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
-	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	// Configurar el Mesh de ACharacter en lugar de usar Mesh3P
+	GetMesh()->SetOwnerNoSee(true);  // Visible para los demás jugadores
+	GetMesh()->SetOnlyOwnerSee(false);
+	GetMesh()->SetupAttachment(GetCapsuleComponent()); // Mantenerlo en el CapsuleComponent
+
+	// Configurar el arma en el Mesh de ACharacter
 	TP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TP_Gun"));
-	TP_Gun->SetOwnerNoSee(true);
-	TP_Gun->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
+	TP_Gun->SetOwnerNoSee(true); // Oculto para el dueño
+	TP_Gun->SetupAttachment(GetMesh(), TEXT("hand_rSocket")); // Adjuntar al esqueleto de GetMesh()
 
 	//Not seeing itself
 	GetMesh()->SetOwnerNoSee(true);
-
 }
 
 void AChasingTwilightCharacter::BeginPlay()

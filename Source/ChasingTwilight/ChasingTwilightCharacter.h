@@ -97,7 +97,7 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 
 	/** Returns Mesh1P subobject **/
-	USkeletalMeshComponent* GetMesh3P() const { return TP_Gun; }
+	USkeletalMeshComponent* GetMesh3P() const { return GetMesh(); }
 
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }

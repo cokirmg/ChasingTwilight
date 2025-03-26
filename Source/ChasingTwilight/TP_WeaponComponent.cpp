@@ -15,7 +15,7 @@
 // Sets default values for this component's properties
 UTP_WeaponComponent::UTP_WeaponComponent()
 {
-	
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
@@ -147,18 +147,18 @@ void UTP_WeaponComponent::ServerFire_Implementation(const FVector pos, const FVe
 void UTP_WeaponComponent::MultiCastShootEffects_Implementation()
 {
 	// try and play a firing animation if specified
-	if (FireAnimation != NULL)
+	if (FireAnimation != nullptr)
 	{
 		// Get the animation object for the arms mesh
 		//AChasingTwilightCharacter* character = Cast<AChasingTwilightCharacter>(Character);
 		UAnimInstance* AnimInstance = Character->GetMesh3P()->GetAnimInstance();
-		if (AnimInstance != NULL)
+		if (AnimInstance != nullptr)
 		{
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
 	}
 	// try and play the sound if specified
-	if (FireSound != NULL)
+	if (FireSound != nullptr)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetOwner()->GetActorLocation());
 	}
