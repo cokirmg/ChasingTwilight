@@ -11,6 +11,8 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "ChasingTwilightPlayerState.h"
+#include "GameFramework/DamageType.h"
+#include "Engine/DamageEvents.h"
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -137,4 +139,67 @@ float AChasingTwilightCharacter::TakeDamage(float Damage, FDamageEvent const& Da
 	CTPlayerState->Health -= Damage;
 
 	return Damage;
+}
+
+void AChasingTwilightCharacter::Fire(const FVector pos, const FVector dir)
+{
+	DrawDebugLine(GetWorld(), pos, dir, FColor::Red, true, 100, 0, 5.0f);
+
+	FCollisionObjectQueryParams ObjQuery;
+	// Use defined channel. Look in "DefaultEngine.ini"
+	ObjQuery.AddObjectTypesToQuery(ECC_GameTraceChannel1);
+	FCollisionQueryParams ColQuery;
+	ColQuery.AddIgnoredActor(this);
+
+	FHitResult HitRes;
+	GetWorld()->LineTraceSingleByObjectType(HitRes, pos, dir, ObjQuery, ColQuery);
+	if (HitRes.bBlockingHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ACTOR %s"), *HitRes.GetActor()->GetName());
+		AChasingTwilightCharacter* OtherChar = Cast<AChasingTwilightCharacter>(HitRes.GetActor());
+		FDamageEvent thisEvent(UDamageType::StaticClass());
+		OtherChar->TakeDamage(10.0f, thisEvent, GetController(), GetOwner());
+	}
+
+}
+
+
+
+bool AChasingTwilightCharacter::ServerFire_Validate(const FVector pos, const FVector dir)
+{
+	if (pos != FVector(ForceInit) && dir != FVector(ForceInit))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void AChasingTwilightCharacter::ServerFire_Implementation(const FVector pos, const FVector dir)
+{
+	Fire(pos, dir);
+	MultiCastShootEffects();
+}
+
+void AChasingTwilightCharacter::MultiCastShootEffects_Implementation()
+{
+	// try and play a firing animation if specified
+	if (TP_FireAnimation != nullptr)
+	{
+		// Get the animation object for the arms mesh
+		//AChasingTwilightCharacter* character = Cast<AChasingTwilightCharacter>(Character);
+		UAnimInstance* AnimInstance = GetMesh3P()->GetAnimInstance();
+		if (AnimInstance != nullptr)
+		{
+			AnimInstance->Montage_Play(TP_FireAnimation, 1.f);
+		}
+	}
+	// try and play the sound if specified
+	/*if (FireSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetOwner()->GetActorLocation());
+	}*/
+	// TODO: Try to play particles for the shot and for the bullet
 }

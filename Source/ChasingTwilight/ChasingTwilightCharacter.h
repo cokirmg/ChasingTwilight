@@ -55,6 +55,14 @@ public:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
 
+	void Fire(const FVector pos, const FVector dir);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire(const FVector pos, const FVector dir);
+	// Multicast so all clients run shoot effects
+	UFUNCTION(NetMultiCast, unreliable)
+	void MultiCastShootEffects();
+
 
 public:
 		

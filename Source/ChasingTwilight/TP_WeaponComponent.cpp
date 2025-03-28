@@ -49,7 +49,7 @@ void UTP_WeaponComponent::Fire()
 	FVector2D ScreenPos = GEngine->GameViewport->Viewport->GetSizeXY();
 	pController->DeprojectScreenPositionToWorld(ScreenPos.X / 2.0f, ScreenPos.Y / 2.0f,	mousePos, mouseDir);
 	mouseDir *= 10000000.0f;
-	ServerFire(mousePos, mouseDir);
+	Character->ServerFire(mousePos, mouseDir);
 }
 
 void UTP_WeaponComponent::AttachWeapon(AChasingTwilightCharacter* TargetCharacter)
@@ -102,65 +102,65 @@ void UTP_WeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
-void UTP_WeaponComponent::Fire(const FVector pos, const FVector dir)
-{
-	DrawDebugLine(GetWorld(), pos, dir, FColor::Red, true, 100, 0, 5.0f);
-
-	FCollisionObjectQueryParams ObjQuery;
-	// Use defined channel. Look in "DefaultEngine.ini"
-	ObjQuery.AddObjectTypesToQuery(ECC_GameTraceChannel1);
-	FCollisionQueryParams ColQuery;
-	ColQuery.AddIgnoredActor(Character);
-
-	FHitResult HitRes;
-	GetWorld()->LineTraceSingleByObjectType(HitRes, pos, dir, ObjQuery, ColQuery);
-	if (HitRes.bBlockingHit)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ACTOR %s"), *HitRes.GetActor()->GetName());
-		AChasingTwilightCharacter* OtherChar = Cast<AChasingTwilightCharacter>(HitRes.GetActor());
-		FDamageEvent thisEvent(UDamageType::StaticClass());
-		OtherChar->TakeDamage(10.0f, thisEvent, Character->GetController(), GetOwner());
-	}
-
-}
-
-
-
-bool UTP_WeaponComponent::ServerFire_Validate(const FVector pos, const FVector dir)
-{
-	if (pos != FVector(ForceInit) && dir != FVector(ForceInit))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-void UTP_WeaponComponent::ServerFire_Implementation(const FVector pos, const FVector dir)
-{
-	Fire(pos, dir);
-	MultiCastShootEffects();
-}
-
-void UTP_WeaponComponent::MultiCastShootEffects_Implementation()
-{
-	// try and play a firing animation if specified
-	if (FireAnimation != nullptr)
-	{
-		// Get the animation object for the arms mesh
-		//AChasingTwilightCharacter* character = Cast<AChasingTwilightCharacter>(Character);
-		UAnimInstance* AnimInstance = Character->GetMesh3P()->GetAnimInstance();
-		if (AnimInstance != nullptr)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
-	}
-	// try and play the sound if specified
-	if (FireSound != nullptr)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetOwner()->GetActorLocation());
-	}
-	// TODO: Try to play particles for the shot and for the bullet
-}
+//void UTP_WeaponComponent::Fire(const FVector pos, const FVector dir)
+//{
+//	DrawDebugLine(GetWorld(), pos, dir, FColor::Red, true, 100, 0, 5.0f);
+//
+//	FCollisionObjectQueryParams ObjQuery;
+//	// Use defined channel. Look in "DefaultEngine.ini"
+//	ObjQuery.AddObjectTypesToQuery(ECC_GameTraceChannel1);
+//	FCollisionQueryParams ColQuery;
+//	ColQuery.AddIgnoredActor(Character);
+//
+//	FHitResult HitRes;
+//	GetWorld()->LineTraceSingleByObjectType(HitRes, pos, dir, ObjQuery, ColQuery);
+//	if (HitRes.bBlockingHit)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("ACTOR %s"), *HitRes.GetActor()->GetName());
+//		AChasingTwilightCharacter* OtherChar = Cast<AChasingTwilightCharacter>(HitRes.GetActor());
+//		FDamageEvent thisEvent(UDamageType::StaticClass());
+//		OtherChar->TakeDamage(10.0f, thisEvent, Character->GetController(), GetOwner());
+//	}
+//
+//}
+//
+//
+//
+//bool UTP_WeaponComponent::ServerFire_Validate(const FVector pos, const FVector dir)
+//{
+//	if (pos != FVector(ForceInit) && dir != FVector(ForceInit))
+//	{
+//		return true;
+//	}
+//	else
+//	{
+//		return false;
+//	}
+//}
+//
+//void UTP_WeaponComponent::ServerFire_Implementation(const FVector pos, const FVector dir)
+//{
+//	Fire(pos, dir);
+//	MultiCastShootEffects();
+//}
+//
+//void UTP_WeaponComponent::MultiCastShootEffects_Implementation()
+//{
+//	// try and play a firing animation if specified
+//	if (FireAnimation != nullptr)
+//	{
+//		// Get the animation object for the arms mesh
+//		//AChasingTwilightCharacter* character = Cast<AChasingTwilightCharacter>(Character);
+//		UAnimInstance* AnimInstance = Character->GetMesh3P()->GetAnimInstance();
+//		if (AnimInstance != nullptr)
+//		{
+//			AnimInstance->Montage_Play(FireAnimation, 1.f);
+//		}
+//	}
+//	// try and play the sound if specified
+//	if (FireSound != nullptr)
+//	{
+//		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetOwner()->GetActorLocation());
+//	}
+//	// TODO: Try to play particles for the shot and for the bullet
+//}

@@ -49,19 +49,19 @@ protected:
 	UFUNCTION()
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	void Fire(const FVector pos, const FVector dir);
+	//void Fire(const FVector pos, const FVector dir);
 
 
 
 
 private:
 
-	// Peform fire action on the server
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerFire(const FVector pos, const FVector dir);
-	// Multicast so all clients run shoot effects
-	UFUNCTION(NetMultiCast, unreliable)
-	void MultiCastShootEffects();
-	/** The Character holding this weapon*/
+	//// Peform fire action on the server
+	//UFUNCTION(Server, Reliable, WithValidation)
+	//void ServerFire(const FVector pos, const FVector dir);
+	//// Multicast so all clients run shoot effects
+	//UFUNCTION(NetMultiCast, unreliable)
+	//void MultiCastShootEffects();
+	///** The Character holding this weapon*/
 	AChasingTwilightCharacter* Character;
 };
