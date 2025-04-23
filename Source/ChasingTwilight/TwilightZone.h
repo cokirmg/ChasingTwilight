@@ -19,6 +19,18 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Header file (TwilightZone.h)
+	FVector StartLocation;
+	FVector EndLocation;
+
+	float Speed = 100.f; // Velocidad en unidades por segundo
+	FVector Direction;
+	bool bMoving = true;
+	UPROPERTY(EditAnywhere, Category = "Zones")
+	bool bDarkZone;
+	UPROPERTY(EditAnywhere, Category = "Zones")
+	bool bSunStorm;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
