@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "MultiplayerVehiclePawn.h"
+#include "VehicleController.h"
 #include "ChasingTwilightCharacter.generated.h"
 
 class UInputComponent;
@@ -44,9 +46,15 @@ class AChasingTwilightCharacter : public ACharacter
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
+
+	/** Move Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
 	
 public:
 	AChasingTwilightCharacter();
+
+	AMultiplayerVehiclePawn* Vehicle;
 
 protected:
 	virtual void BeginPlay();
@@ -95,6 +103,9 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
+	/** Called for looking input */
+	void Interact(const FInputActionValue& Value);
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -109,6 +120,8 @@ public:
 
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	bool bInteractable = false;
 
 };
 

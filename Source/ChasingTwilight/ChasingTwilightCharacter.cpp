@@ -13,6 +13,7 @@
 #include "ChasingTwilightPlayerState.h"
 #include "GameFramework/DamageType.h"
 #include "Engine/DamageEvents.h"
+#include <Kismet/GameplayStatics.h>
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -70,6 +71,11 @@ void AChasingTwilightCharacter::BeginPlay()
 		}
 	}
 
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMultiplayerVehiclePawn::StaticClass(), FoundActors);
+	Vehicle = Cast<AMultiplayerVehiclePawn>(FoundActors[0]);
+
+
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -88,6 +94,9 @@ void AChasingTwilightCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AChasingTwilightCharacter::Look);
+
+		// Interacting
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AChasingTwilightCharacter::Interact);
 	}
 	else
 	{
@@ -121,6 +130,23 @@ void AChasingTwilightCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+
+void AChasingTwilightCharacter::Interact(const FInputActionValue& Value)
+{
+	if (bInteractable && Vehicle)
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		if (PlayerController)
+		{
+			Vehicle->TakeControl(PlayerController);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Log, TEXT("No puedes interactuar con el vehículo"));
+	}
+}
+
 
 void AChasingTwilightCharacter::SetHasRifle(bool bNewHasRifle)
 {
