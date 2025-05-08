@@ -16,6 +16,12 @@ public:
 	// Sets default values for this component's properties
 	UAC_Pickable();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Resource")
+	float totalAmmount = 15.f;
+
+	float actualAmmount = 0.f;
+
+	bool GetResource(float ammount);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -63,6 +63,8 @@ public:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
 
+	virtual float AddResource(float ammount);
+
 	void Fire(const FVector pos, const FVector dir);
 
 	UFUNCTION(Server, Reliable, WithValidation)

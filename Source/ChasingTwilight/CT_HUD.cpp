@@ -13,7 +13,9 @@ void ACT_HUD::DrawHUD()
 	AChasingTwilightPlayerState* PlayerState = ThisChar ? Cast<AChasingTwilightPlayerState>(ThisChar->GetPlayerState()) : nullptr;
 	if (PlayerState)
 	{
-		FString HUDString = FString::Printf(TEXT("Health: %f"), PlayerState->Health);
-		DrawText(HUDString, FColor::Yellow, 50, 50);
+		FString HUDHealth = FString::Printf(TEXT("Health: %f"), PlayerState->Health);
+		DrawText(HUDHealth, FColor::Yellow, 50, 50);
+		FString HUDResource = FString::Printf(TEXT("Resource: %f"), PlayerState->Resource);
+		DrawText(HUDResource, FColor::Blue, 50, 75);
 	}
 }

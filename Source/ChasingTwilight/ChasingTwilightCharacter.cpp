@@ -168,6 +168,16 @@ float AChasingTwilightCharacter::TakeDamage(float Damage, FDamageEvent const& Da
 	return Damage;
 }
 
+float AChasingTwilightCharacter::AddResource(float ammount)
+{
+	
+	AChasingTwilightPlayerState* CTPlayerState = GetPlayerState<AChasingTwilightPlayerState>();
+	CTPlayerState->Resource += ammount;
+
+	return ammount;
+}
+
+
 void AChasingTwilightCharacter::Fire(const FVector pos, const FVector dir)
 {
 	DrawDebugLine(GetWorld(), pos, dir, FColor::Red, true, 100, 0, 5.0f);
@@ -192,10 +202,11 @@ void AChasingTwilightCharacter::Fire(const FVector pos, const FVector dir)
 
 void AChasingTwilightCharacter::Pick(const FVector pos, const FVector dir)
 {
+	DrawDebugLine(GetWorld(), pos, dir, FColor::Blue, true, 100, 0, 5.0f);
 
 	FCollisionObjectQueryParams ObjQuery;
 	// Use defined channel. Look in "DefaultEngine.ini"
-	ObjQuery.AddObjectTypesToQuery(ECC_GameTraceChannel1);
+	//ObjQuery.AddObjectTypesToQuery(ECR_Block);
 	FCollisionQueryParams ColQuery;
 	ColQuery.AddIgnoredActor(this);
 
@@ -205,10 +216,16 @@ void AChasingTwilightCharacter::Pick(const FVector pos, const FVector dir)
 	{
 		if (UAC_Pickable* comp = HitRes.GetActor()->FindComponentByClass<UAC_Pickable>())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Picking Shit"));
+			UE_LOG(LogTemp, Warning, TEXT("Picking Shit from %s"), *HitRes.GetActor()->GetName());
+			if (comp->GetResource(1.f))
+			{
+				AddResource(1.f);
+			}
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("No Shit to Pick"));
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ACTOR %s No tiene el componente Pick"), *HitRes.GetActor()->GetName());
+		}
 	}
 	else
 	{

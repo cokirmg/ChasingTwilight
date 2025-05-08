@@ -19,4 +19,7 @@ public:
     UPROPERTY(Replicated)
     float Health;
 
+    UPROPERTY(Replicated)
+    float Resource;
+
 };

@@ -14,12 +14,14 @@ UAC_Pickable::UAC_Pickable()
 }
 
 
+
+
 // Called when the game starts
 void UAC_Pickable::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	actualAmmount = totalAmmount;
 	
 }
 
@@ -32,3 +34,15 @@ void UAC_Pickable::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	// ...
 }
 
+bool UAC_Pickable::GetResource(float ammount)
+{
+	if (actualAmmount - ammount >= 0)
+	{
+		actualAmmount -= ammount;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
