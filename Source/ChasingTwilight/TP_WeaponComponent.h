@@ -31,6 +31,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
 
+	/** Fire Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* PickAction;
+
 	/** Sets default values for this component's properties */
 	UTP_WeaponComponent();
 
@@ -43,6 +47,10 @@ public:
 	/** Make the weapon Fire a Projectile */
 	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void Fire();
+
+	/** Make the weapon Pick a Resource */
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void Pick();
 
 protected:
 	/** Ends gameplay for this component. */

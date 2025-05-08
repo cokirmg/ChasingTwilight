@@ -52,6 +52,23 @@ void UTP_WeaponComponent::Fire()
 	Character->ServerFire(mousePos, mouseDir);
 }
 
+void UTP_WeaponComponent::Pick()
+{
+	if (Character == nullptr || Character->GetController() == nullptr)
+	{
+		return;
+	}
+
+	FVector mousePos;
+	FVector mouseDir;
+	APlayerController* pController = Cast<APlayerController>(Character->GetController());
+	FVector2D ScreenPos = GEngine->GameViewport->Viewport->GetSizeXY();
+	pController->DeprojectScreenPositionToWorld(ScreenPos.X / 2.0f, ScreenPos.Y / 2.0f, mousePos, mouseDir);
+	mouseDir *= 10000000.0f;
+
+	Character->ServerPick(mousePos, mouseDir);
+}
+
 void UTP_WeaponComponent::AttachWeapon(AChasingTwilightCharacter* TargetCharacter)
 {
 	Character = TargetCharacter;
@@ -82,6 +99,7 @@ void UTP_WeaponComponent::AttachWeapon(AChasingTwilightCharacter* TargetCharacte
 		{
 			// Fire
 			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &UTP_WeaponComponent::Fire);
+			EnhancedInputComponent->BindAction(PickAction, ETriggerEvent::Triggered, this, &UTP_WeaponComponent::Pick);
 		}
 	}
 }

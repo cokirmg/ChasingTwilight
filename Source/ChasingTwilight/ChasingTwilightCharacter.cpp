@@ -14,6 +14,7 @@
 #include "GameFramework/DamageType.h"
 #include "Engine/DamageEvents.h"
 #include <Kismet/GameplayStatics.h>
+#include "ChasingTwilight/AC_Pickable.h"
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -189,7 +190,50 @@ void AChasingTwilightCharacter::Fire(const FVector pos, const FVector dir)
 
 }
 
+void AChasingTwilightCharacter::Pick(const FVector pos, const FVector dir)
+{
 
+	FCollisionObjectQueryParams ObjQuery;
+	// Use defined channel. Look in "DefaultEngine.ini"
+	ObjQuery.AddObjectTypesToQuery(ECC_GameTraceChannel1);
+	FCollisionQueryParams ColQuery;
+	ColQuery.AddIgnoredActor(this);
+
+	FHitResult HitRes;
+	GetWorld()->LineTraceSingleByObjectType(HitRes, pos, dir, ObjQuery, ColQuery);
+	if (HitRes.bBlockingHit)
+	{
+		if (UAC_Pickable* comp = HitRes.GetActor()->FindComponentByClass<UAC_Pickable>())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Picking Shit"));
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("No Shit to Pick"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Nothing near for pick"));
+	}
+
+}
+
+bool AChasingTwilightCharacter::ServerPick_Validate(const FVector pos, const FVector dir)
+{
+	if (pos != FVector(ForceInit) && dir != FVector(ForceInit))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void AChasingTwilightCharacter::ServerPick_Implementation(const FVector pos, const FVector dir)
+{
+	Pick(pos, dir);
+	//MultiCastShootEffects();
+}
 
 bool AChasingTwilightCharacter::ServerFire_Validate(const FVector pos, const FVector dir)
 {

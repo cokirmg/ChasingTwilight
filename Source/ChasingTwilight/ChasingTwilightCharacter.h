@@ -71,6 +71,10 @@ public:
 	UFUNCTION(NetMultiCast, unreliable)
 	void MultiCastShootEffects();
 
+	void Pick(const FVector pos, const FVector dir);
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerPick(const FVector pos, const FVector dir);
+
 
 public:
 		
