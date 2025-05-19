@@ -93,7 +93,7 @@ void AMultiplayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 
     if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
     {
-        EnhancedInputComponent->BindAction(AccelerateAction, ETriggerEvent::Triggered, this, &AMultiplayerVehiclePawn::Move);
+        EnhancedInputComponent->BindAction(AccelerateAction, ETriggerEvent::Triggered, this, &AMultiplayerVehiclePawn::MoveCheck);
         EnhancedInputComponent->BindAction(AccelerateAction, ETriggerEvent::Completed, this, &AMultiplayerVehiclePawn::StopMove);
         EnhancedInputComponent->BindAction(AccelerateAction, ETriggerEvent::Canceled, this, &AMultiplayerVehiclePawn::StopMove);
         EnhancedInputComponent->BindAction(Brake_ReverseAction, ETriggerEvent::Triggered, this, &AMultiplayerVehiclePawn::Brake_Reverse);
@@ -106,7 +106,7 @@ void AMultiplayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
         EnhancedInputComponent->BindAction(GirarDerechaAction, ETriggerEvent::Completed, this, &AMultiplayerVehiclePawn::DetenerGiro);
         EnhancedInputComponent->BindAction(GirarDerechaAction, ETriggerEvent::Canceled, this, &AMultiplayerVehiclePawn::DetenerGiro);
 
-        EnhancedInputComponent->BindAction(ExitVehicleAction, ETriggerEvent::Started, this, &AMultiplayerVehiclePawn::ReleaseControl);
+        EnhancedInputComponent->BindAction(ExitVehicleAction, ETriggerEvent::Started, this, &AMultiplayerVehiclePawn::ReleaseControlCheck);
     }
 }
 
@@ -136,7 +136,7 @@ void AMultiplayerVehiclePawn::Brake_Reverse()
     }
 }
 
-void AMultiplayerVehiclePawn::Move(const FInputActionValue& Value)
+void AMultiplayerVehiclePawn::Move()
 {
     FVector ForwardDir = -BaseMesh->GetForwardVector();
     float VelocidadAdelante = FVector::DotProduct(VelocidadActual, ForwardDir);
@@ -150,6 +150,22 @@ void AMultiplayerVehiclePawn::Move(const FInputActionValue& Value)
             VelocidadActual = VelocidadActual.GetSafeNormal() * MaxVelocidadReversa;
         }
     
+}
+
+void AMultiplayerVehiclePawn::MoveCheck() {
+    UE_LOG(LogTemplateCharacter, Log, TEXT("MOOVE"));
+    if (HasAuthority())
+    {
+        Move(); // si ya somos el servidor
+    }
+    else
+    {
+        ServerMove(); // si somos cliente, pedimos al servidor que lo haga
+    }
+}
+
+void AMultiplayerVehiclePawn::ServerMove_Implementation() {
+    Move();
 }
 
 void AMultiplayerVehiclePawn::StopMove()
@@ -202,6 +218,7 @@ void AMultiplayerVehiclePawn::EndOverlap(UPrimitiveComponent* OverlappedComp, AA
 
 void AMultiplayerVehiclePawn::TakeControl(APlayerController* NewPlayerController)
 {
+    UE_LOG(LogTemplateCharacter, Log, TEXT("Take control"));
     if (NewPlayerController)
     {
         CachedPlayer = Cast<AChasingTwilightCharacter>(NewPlayerController->GetPawn());
@@ -226,8 +243,21 @@ void AMultiplayerVehiclePawn::TakeControl(APlayerController* NewPlayerController
     }
 }
 
+void AMultiplayerVehiclePawn::ReleaseControlCheck() {
+    if (HasAuthority())
+    {
+        ReleaseControl(); // si ya somos el servidor
+    }
+    else
+    {
+        ServerReleaseControl(); // si somos cliente, pedimos al servidor que lo haga
+    }
+
+}
+
 void AMultiplayerVehiclePawn::ReleaseControl()
 {
+    UE_LOG(LogTemplateCharacter, Log, TEXT("Release control"));
     if (CurrentController && CachedPlayer)
     {
         CachedPlayer->SetActorHiddenInGame(false);
@@ -261,7 +291,9 @@ void AMultiplayerVehiclePawn::ReleaseControl()
     CachedPlayer = nullptr;
 }
 
-
+void AMultiplayerVehiclePawn::ServerReleaseControl_Implementation() {
+    ReleaseControl();
+}
 
 
 
@@ -288,5 +320,16 @@ void AMultiplayerVehiclePawn::GetLifetimeReplicatedProps(TArray<FLifetimePropert
     DOREPLIFETIME(AMultiplayerVehiclePawn, VelocidadActual);
     DOREPLIFETIME(AMultiplayerVehiclePawn, DireccionGiro);
     DOREPLIFETIME(AMultiplayerVehiclePawn, bAcelerando);
+
+    DOREPLIFETIME(AMultiplayerVehiclePawn, CurrentController);
 }
+
+void AMultiplayerVehiclePawn::ServerTakeControl_Implementation(APlayerController* NewPlayerController)
+{
+    TakeControl(NewPlayerController);
+}
+
+
+
+
 

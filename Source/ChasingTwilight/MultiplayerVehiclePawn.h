@@ -66,7 +66,7 @@ public:
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-    void Move(const FInputActionValue& Value);
+    void Move();
     void StopMove();
     void GirarIzquierda();
     void GirarDerecha();
@@ -77,8 +77,25 @@ public:
 
     void TakeControl(APlayerController* NewController);
 
+    void ReleaseControlCheck();
+    void MoveCheck();
+
+    UFUNCTION(Server, Reliable)
+    void ServerTakeControl(APlayerController* NewPlayerController);
+    //void ServerTakeControl_Implementation(APlayerController* NewPlayerController);
+
+   // void ServerReleaseControl_Implementation();
+
+
     UFUNCTION(BlueprintCallable, Category = "Vehicle")
     void ReleaseControl();
+
+
+    UFUNCTION(Server, Reliable)
+    void ServerReleaseControl();
+
+    UFUNCTION(Server, Reliable)
+    void ServerMove();
 
 
 private:
@@ -90,7 +107,9 @@ private:
     void EndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
     AChasingTwilightCharacter* CachedPlayer;
+    UPROPERTY(Replicated)
     APlayerController* CurrentController;
+
 
     FVector RelativePosition;
     FRotator RelativeRotation;

@@ -129,5 +129,10 @@ public:
 
 	bool bInteractable = false;
 
+
+private:
+	UFUNCTION(Server, Reliable)
+	void ServerRequestVehicleControl(AMultiplayerVehiclePawn* InVehicle);
+
 };
 

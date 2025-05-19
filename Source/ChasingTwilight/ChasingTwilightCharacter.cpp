@@ -139,7 +139,14 @@ void AChasingTwilightCharacter::Interact(const FInputActionValue& Value)
 		APlayerController* PlayerController = Cast<APlayerController>(GetController());
 		if (PlayerController)
 		{
-			Vehicle->TakeControl(PlayerController);
+			if (HasAuthority())
+			{
+				Vehicle->TakeControl(PlayerController);
+			}
+			else
+			{
+				ServerRequestVehicleControl(Vehicle); // << aquí es donde va la línea que preguntabas
+			}
 		}
 	}
 	else
@@ -290,3 +297,12 @@ void AChasingTwilightCharacter::MultiCastShootEffects_Implementation()
 	}*/
 	// TODO: Try to play particles for the shot and for the bullet
 }
+
+void AChasingTwilightCharacter::ServerRequestVehicleControl_Implementation(AMultiplayerVehiclePawn* InVehicle)
+{
+	if (InVehicle)
+	{
+		InVehicle->TakeControl(Cast<APlayerController>(GetController()));
+	}
+}
+
