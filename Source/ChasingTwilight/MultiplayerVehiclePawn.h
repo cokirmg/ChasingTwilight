@@ -45,6 +45,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
     UInputAction* ExitVehicleAction;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+    UInputAction* PruebaAction;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     USceneComponent* Root;
 
@@ -65,7 +68,7 @@ public:
     virtual void PossessedBy(AController* NewController) override;
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
+    UFUNCTION(BlueprintCallable, Category = "Vehicle")
     void Move();
     void StopMove();
     void GirarIzquierda();
@@ -79,6 +82,7 @@ public:
 
     void ReleaseControlCheck();
     void MoveCheck();
+    void PruebaCheck();
 
     UFUNCTION(Server, Reliable)
     void ServerTakeControl(APlayerController* NewPlayerController);
@@ -90,9 +94,15 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Vehicle")
     void ReleaseControl();
 
+    UFUNCTION(BlueprintCallable, Category = "Vehicle")
+    void Prueba();
+
 
     UFUNCTION(Server, Reliable)
     void ServerReleaseControl();
+
+    UFUNCTION(Server, Reliable)
+    void ServerPrueba();
 
     UFUNCTION(Server, Reliable)
     void ServerMove();
@@ -131,6 +141,12 @@ private:
 
     UPROPERTY(Replicated)
     FVector VelocidadActual;
+
+    UPROPERTY(Replicated)
+    FVector ForwardDir2;
+
+    UPROPERTY(Replicated)
+    float VelocidadAdelante2;
 
     UPROPERTY(Replicated)
     float DireccionGiro;

@@ -16,7 +16,7 @@ AMultiplayerVehiclePawn::AMultiplayerVehiclePawn()
     Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
     RootComponent = Root;
 
-    RootComponent = VehicleMesh;
+    //RootComponent = VehicleMesh;
     VehicleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VehicleMesh"));
     VehicleMesh->SetupAttachment(Root);
     VehicleMesh->SetSimulatePhysics(false);
@@ -91,6 +91,18 @@ void AMultiplayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+    if (const APlayerController* PC = Cast<APlayerController>(Controller))
+    {
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+        {
+            if (VehicleMappingContext)
+            {
+                Subsystem->AddMappingContext(VehicleMappingContext, 0);
+            }
+        }
+    }
+
+
     if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
     {
         EnhancedInputComponent->BindAction(AccelerateAction, ETriggerEvent::Triggered, this, &AMultiplayerVehiclePawn::MoveCheck);
@@ -107,6 +119,29 @@ void AMultiplayerVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerI
         EnhancedInputComponent->BindAction(GirarDerechaAction, ETriggerEvent::Canceled, this, &AMultiplayerVehiclePawn::DetenerGiro);
 
         EnhancedInputComponent->BindAction(ExitVehicleAction, ETriggerEvent::Started, this, &AMultiplayerVehiclePawn::ReleaseControlCheck);
+        EnhancedInputComponent->BindAction(PruebaAction, ETriggerEvent::Started, this, &AMultiplayerVehiclePawn::PruebaCheck);
+    }
+
+
+
+}
+
+
+void AMultiplayerVehiclePawn::Prueba() {
+
+}
+
+
+void AMultiplayerVehiclePawn::PruebaCheck()
+{
+    UE_LOG(LogTemplateCharacter, Log, TEXT("Me voy a cagar en la puta madre qu epario a panete"));
+    if (HasAuthority())
+    {
+        Prueba(); // si ya somos el servidor
+    }
+    else
+    {
+        ServerPrueba(); // si somos cliente, pedimos al servidor que lo haga
     }
 }
 
@@ -138,11 +173,11 @@ void AMultiplayerVehiclePawn::Brake_Reverse()
 
 void AMultiplayerVehiclePawn::Move()
 {
-    FVector ForwardDir = -BaseMesh->GetForwardVector();
-    float VelocidadAdelante = FVector::DotProduct(VelocidadActual, ForwardDir);
+    ForwardDir2 = -BaseMesh->GetForwardVector();
+    VelocidadAdelante2 = FVector::DotProduct(VelocidadActual, ForwardDir2);
 
 
-        VelocidadActual += -ForwardDir * -Aceleracion * Aceleracion * GetWorld()->GetDeltaSeconds();
+        VelocidadActual += -ForwardDir2 * -Aceleracion * Aceleracion * GetWorld()->GetDeltaSeconds();
 
         float MaxVelocidadReversa = MaxVelocidad;
         if (VelocidadActual.Size() > MaxVelocidadReversa)
@@ -190,6 +225,8 @@ void AMultiplayerVehiclePawn::ApplyBrake()
 
 void AMultiplayerVehiclePawn::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+
+    UE_LOG(LogTemplateCharacter, Log, TEXT("overlap"));
     AChasingTwilightCharacter* Player = Cast<AChasingTwilightCharacter>(OtherActor);
     if (Player)
     {
@@ -244,6 +281,7 @@ void AMultiplayerVehiclePawn::TakeControl(APlayerController* NewPlayerController
 }
 
 void AMultiplayerVehiclePawn::ReleaseControlCheck() {
+    UE_LOG(LogTemplateCharacter, Log, TEXT("release control"));
     if (HasAuthority())
     {
         ReleaseControl(); // si ya somos el servidor
@@ -295,6 +333,10 @@ void AMultiplayerVehiclePawn::ServerReleaseControl_Implementation() {
     ReleaseControl();
 }
 
+void AMultiplayerVehiclePawn::ServerPrueba_Implementation() {
+    Prueba();
+}
+
 
 
 void AMultiplayerVehiclePawn::PossessedBy(AController* NewController)
@@ -322,6 +364,8 @@ void AMultiplayerVehiclePawn::GetLifetimeReplicatedProps(TArray<FLifetimePropert
     DOREPLIFETIME(AMultiplayerVehiclePawn, bAcelerando);
 
     DOREPLIFETIME(AMultiplayerVehiclePawn, CurrentController);
+    DOREPLIFETIME(AMultiplayerVehiclePawn, ForwardDir2);
+    DOREPLIFETIME(AMultiplayerVehiclePawn, VelocidadAdelante2);
 }
 
 void AMultiplayerVehiclePawn::ServerTakeControl_Implementation(APlayerController* NewPlayerController)
