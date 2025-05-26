@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/ArrowComponent.h"
 #include "GameFramework/Actor.h"
 #include "TwilightZone.generated.h"
 
@@ -31,8 +32,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Zones")
 	bool bSunStorm;
 
+	
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Zones")
+	USceneComponent* TargetPoint;
 
 };

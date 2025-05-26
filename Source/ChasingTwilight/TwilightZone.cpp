@@ -3,47 +3,52 @@
 
 #include "TwilightZone.h"
 
+#include "Components/ArrowComponent.h"
 #include "Components/LocalHeightFogComponent.h"
 
 // Sets default values
 ATwilightZone::ATwilightZone()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
 void ATwilightZone::BeginPlay()
 {
-	
-	
-	
 	Super::BeginPlay();
+
+	// Buscar el componente Arrow dentro del Blueprint
+	TargetPoint = FindComponentByClass<UArrowComponent>();
+
+	if (!TargetPoint)
+	{
+		UE_LOG(LogTemp, Error, TEXT("TargetPoint no encontrado. Asegúrate de tener un UArrowComponent en el Blueprint."));
+		return;
+	}
 
 	ULocalHeightFogComponent* FogComp = FindComponentByClass<ULocalHeightFogComponent>();
 	if (FogComp)
 	{
 		if (bDarkZone)
 		{
-			FogComp->FogDensity=1.3f;
-			FogComp->FogHeightFalloff=40.2f;
-			FogComp->FogHeightOffset=1.9f;
-			FogComp->FogRadialAttenuation=0.f;
-			FogComp->FogAlbedo= FLinearColor(0.0f, 0.08f, 0.48f);
-			FogComp->FogEmissive= FLinearColor(0.05f, 0.f, 0.26f);
-			FogComp->MarkRenderStateDirty(); 
+			FogComp->FogDensity = 1.3f;
+			FogComp->FogHeightFalloff = 40.2f;
+			FogComp->FogHeightOffset = 1.9f;
+			FogComp->FogRadialAttenuation = 0.f;
+			FogComp->FogAlbedo = FLinearColor(0.0f, 0.08f, 0.48f);
+			FogComp->FogEmissive = FLinearColor(0.05f, 0.f, 0.26f);
+			FogComp->MarkRenderStateDirty();
 			UE_LOG(LogTemp, Warning, TEXT("Dark zone changed"));
 		}
 		else if (bSunStorm)
 		{
-			FogComp->FogDensity=1.3f;
-			FogComp->FogHeightFalloff=40.2f;
-			FogComp->FogHeightOffset=1.9f;
-			FogComp->FogRadialAttenuation=0.f;
-			FogComp->FogAlbedo= FLinearColor(0.49f, 0.24f, 0.02f);
-			FogComp->FogEmissive= FLinearColor(0.25f, 0.13f, 0.01f);
-			FogComp->MarkRenderStateDirty(); 
+			FogComp->FogDensity = 1.3f;
+			FogComp->FogHeightFalloff = 40.2f;
+			FogComp->FogHeightOffset = 1.9f;
+			FogComp->FogRadialAttenuation = 0.f;
+			FogComp->FogAlbedo = FLinearColor(0.49f, 0.24f, 0.02f);
+			FogComp->FogEmissive = FLinearColor(0.25f, 0.13f, 0.01f);
+			FogComp->MarkRenderStateDirty();
 			UE_LOG(LogTemp, Warning, TEXT("SunStorm changed"));
 		}
 	}
@@ -51,9 +56,12 @@ void ATwilightZone::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FogComp is null!"));
 	}
-	
+
+	// Solo continuamos si TargetPoint es válido
 	StartLocation = GetActorLocation();
-	EndLocation = StartLocation + FVector(6000, 0, 0); // Puedes cambiar la dirección o distancia
+	EndLocation = TargetPoint->GetComponentLocation();
+
+	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 2.0f, 0, 5.0f);
 
 	Direction = (EndLocation - StartLocation).GetSafeNormal(); // Dirección normalizada
 }
@@ -62,6 +70,12 @@ void ATwilightZone::BeginPlay()
 void ATwilightZone::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Seguridad por si TargetPoint se pierde en tiempo de ejecución
+	if (!TargetPoint)
+	{
+		return;
+	}
 
 	FVector CurrentLocation = GetActorLocation();
 	FVector NewLocation = CurrentLocation + Direction * Speed * DeltaTime;
@@ -75,4 +89,3 @@ void ATwilightZone::Tick(float DeltaTime)
 		SetActorLocation(NewLocation); // Mover hacia adelante
 	}
 }
-
