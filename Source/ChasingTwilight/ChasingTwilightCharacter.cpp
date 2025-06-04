@@ -15,6 +15,8 @@
 #include "Engine/DamageEvents.h"
 #include <Kismet/GameplayStatics.h>
 #include "ChasingTwilight/AC_Pickable.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -62,7 +64,13 @@ void AChasingTwilightCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
-
+	if (HasAuthority())
+	{
+		if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+		{
+			MoveComp->SetMovementMode(MOVE_Walking);
+		}
+	}
 	// Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -108,6 +116,7 @@ void AChasingTwilightCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 
 void AChasingTwilightCharacter::Move(const FInputActionValue& Value)
 {
+
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -121,6 +130,7 @@ void AChasingTwilightCharacter::Move(const FInputActionValue& Value)
 
 void AChasingTwilightCharacter::Look(const FInputActionValue& Value)
 {
+
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
@@ -305,4 +315,18 @@ void AChasingTwilightCharacter::ServerRequestVehicleControl_Implementation(AMult
 		InVehicle->TakeControl(Cast<APlayerController>(GetController()));
 	}
 }
+
+void AChasingTwilightCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	UE_LOG(LogTemp, Warning, TEXT("Character possessed by: %s"), *GetNameSafe(NewController));
+
+	// Esto asegura que el movimiento se reestablece correctamente
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->SetMovementMode(MOVE_Walking);
+	}
+}
+
 

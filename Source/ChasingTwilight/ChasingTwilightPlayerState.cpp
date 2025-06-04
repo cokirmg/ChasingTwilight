@@ -9,7 +9,7 @@ AChasingTwilightPlayerState::AChasingTwilightPlayerState(const FObjectInitialize
 : Super(ObjectInitializer)
 {
 	Health = 100.0f;
-	Resource = 0.f;
+	Resource = 200.f;
 }
 
 void AChasingTwilightPlayerState::GetLifetimeReplicatedProps

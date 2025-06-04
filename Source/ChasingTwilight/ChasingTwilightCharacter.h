@@ -134,5 +134,7 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerRequestVehicleControl(AMultiplayerVehiclePawn* InVehicle);
 
+	void PossessedBy(AController* NewController);
+
 };
 
